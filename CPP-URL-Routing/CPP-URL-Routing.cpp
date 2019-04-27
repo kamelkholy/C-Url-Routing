@@ -10,10 +10,10 @@
 #include <vector>
 
 template <class Container>
-void split(const std::string& str, Container& cont, char delim = ' ')
+void split(const std::string& str, Container& cont, const char delim = ' ')
 {
-	std::size_t current, previous = 0;
-	current = str.find(delim);
+	std::size_t previous = 0;
+	auto current = str.find(delim);
 	while (current != std::string::npos) {
 		cont.push_back(str.substr(previous, current - previous));
 		previous = current + 1;
@@ -27,7 +27,7 @@ struct Node
 	std::string name = "";
 	std::string parameter = "";
 	std::string value = "";
-	std::map<std::string, Node> children{};
+	std::map<std::string, Node&> children{};
 };
 enum Operation {
 	GET,
@@ -38,20 +38,19 @@ enum Operation {
 class RoutersTree
 {
 public:
-	RoutersTree() {
-		root = Node();
-	}
-	Node root;
+	RoutersTree() = default;
 	void add(Operation operation, std::string path)
 	{
 	}
-	std::string match(std::string path) {
-
+	std::string match(const std::string& path) {
+		return std::string{};
 	}
+private:
+	Node root{};
 };
 
 int main() {
-	auto test = "/users/add";
+	const auto test = "/users/add";
 	std::vector<std::string> words;
 	split(test, words, '/');
 	std::cout << words[2] << std::endl;
