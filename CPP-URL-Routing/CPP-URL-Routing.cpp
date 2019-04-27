@@ -8,6 +8,7 @@
 #include <map>
 #include <iostream>
 #include <vector>
+#include <csignal>
 
 template <class Container>
 void split(const std::string& str, Container& cont, const char delim = ' ')
@@ -29,6 +30,7 @@ struct Node
 	std::string value = "";
 	std::map<std::string, Node&> children{};
 };
+
 enum Operation {
 	GET,
 	POST,
@@ -39,12 +41,37 @@ class RoutersTree
 {
 public:
 	RoutersTree() = default;
-	void add(Operation operation, std::string path)
+	void add(Operation operation, std::string path) const
 	{
 	}
-	std::string match(const std::string& path) {
-		return std::string{};
+	Node& match(const std::string& path) {
+		auto& current_node = root;
+		std::vector<std::string&> keys{};
+		split(path, keys, '/');
+		for (auto& key : keys)
+		{
+			if (search(current_node, key))
+			{
+				current_node = current_node.children.at(key);
+			}
+			else
+			{
+				//Page404(path);
+			}
+		}
+		return current_node;
 	}
+
+	static bool search(Node& node, const std::string& key)
+	{
+		for (const auto& child : node.children)
+		{
+			if (child.first == key)
+				return true;
+		}
+		return false;
+	}
+
 private:
 	Node root{};
 };
