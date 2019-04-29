@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <csignal>
+#include <regex>
 
 template <class Container>
 void split(const std::string& str, Container& cont, const char delim = ' ')
@@ -56,6 +57,13 @@ public:
 			{
 			    auto newNode = Node{false, key, "", path};
                 std::cout << key << std::endl;
+                if (std::regex_match (key, std::regex(":\\w+") ))
+                {
+                    std::string param = key.substr(1,key.length());
+                    std::cout << param<<"\n";
+                    Node.isParameter = true;
+                    Node.parameter = param;
+                }
 				current_node.children.emplace(key, newNode);
 			}
 		}
@@ -94,9 +102,16 @@ private:
 
 int main() {
     const std::string test = "/users/add";
-    RoutersTree tree;
-    tree.add(Operation::GET, test);
-    Node& node = tree.match(test);
+//    RoutersTree tree;
+//    tree.add(Operation::GET, test);
+//    Node& node = tree.match(test);
+    std::string param = ":aasdf_sada";
+    if (std::regex_match (param, std::regex(":\\w+") ))
+    {
+        param = param.substr(1,param.length());
+        std::cout << param<<"\n";
+    }
+
 //	std::vector<std::string> words;
 //	split(test, words, '/');
 //	std::cout << node.value << std::endl;
