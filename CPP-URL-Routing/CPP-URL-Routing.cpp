@@ -3,26 +3,27 @@
 
 #include "pch.h"
 
-
 #include <string>
 #include <map>
 #include <iostream>
 #include <vector>
-#include <csignal>
 #include <regex>
+#include<list>
 
 template <class Container>
 void split(const std::string& str, Container& cont, const char delimiter = ' ')
 {
 	std::size_t previous = 0;
 	auto current = str.find(delimiter);
-	while (current != std::string::npos) {
+	while (current != std::string::npos)
+	{
 		cont.emplace_back(str.substr(previous, current - previous));
 		previous = current + 1;
 		current = str.find(delimiter, previous);
 	}
 	cont.emplace_back(str.substr(previous, current - previous));
 }
+
 struct Node
 {
 	bool isParameter = false;
@@ -32,88 +33,103 @@ struct Node
 	std::map<std::string, Node&> children{};
 };
 
-enum Operation {
+enum Operation
+{
 	GET,
 	POST,
 	PUT,
 	DELETE
 };
+
 class RoutersTree
 {
+	Node root{};
+	std::list<Node*> allCreatedNodes{};
+
 public:
 	RoutersTree() = default;
-	void add(Operation operation, const std::string& path) const
+
+	void add(Operation operation, const std::string& path)
 	{
-        auto current_node = root;
-		std::vector<std::string> keys{};
-		split(path, keys, '/');
-		for (auto& key : keys)
-		{
-			if (search(current_node, key))
-			{
-				current_node = current_node.children.at(key);
-			}
-			else
-			{
-			    auto newNode = Node{false, key, "", path};
-                std::cout << key << std::endl;
-                if (std::regex_match (key, std::regex(":\\w+") ))
-                {
-                    std::string param = key.substr(1,key.length());
-                    std::cout << param<<"\n";
-                    Node.isParameter = true;
-                    Node.parameter = param;
-                }
-				current_node.children.emplace(key, newNode);
-			}
-		}
-	}
-	Node& match(const std::string& path) {
-		auto& current_node = root;
+		auto* current_node = &root;
 		std::vector<std::string> keys{};
 		split(path, keys, '/');
 		for (const auto& key : keys)
 		{
-			if (current_node.children.find(key) != current_node.children.end())
+			if (current_node->children.find(key) != current_node->children.end())
 			{
-				current_node = current_node.children.at(key);
+				current_node = &current_node->children.at(key);
+			}
+			else
+			{
+				auto newNode = new Node{false, key, "", path};
+				allCreatedNodes.emplace_back(newNode);
+				std::cout << key << std::endl;
+				if (std::regex_match(key, std::regex(":\\w+")))
+				{
+					auto param = key.substr(1, key.length());
+					std::cout << param << "\n";
+					newNode->isParameter = true;
+					newNode->parameter = param;
+				}
+				current_node->children.emplace(key, *newNode);
+				current_node = newNode;
+			}
+		}
+	}
+
+	Node& match(const std::string& path)
+	{
+		auto* current_node = &root;
+		std::vector<std::string> keys{};
+		split(path, keys, '/');
+		for (const auto& key : keys)
+		{
+			if (current_node->children.find(key) != current_node->children.end())
+			{
+				current_node = &current_node->children.at(key);
 			}
 			else
 			{
 				//Page404(path);
 			}
 		}
-		return current_node;
+		return *current_node;
 	}
-
-	static bool search(Node& node, const std::string& key)
-	{
-		for (const auto& child : node.children)
-		{
-			if (child.first == key)
-				return true;
-		}
-		return false;
-	}
-
-private:
-	Node root{};
 };
 
-int main() {
-    const std::string test = "/users/add";
-//    RoutersTree tree;
-//    tree.add(Operation::GET, test);
-//    Node& node = tree.match(test);
-    std::string param = ":aasdf_sada";
-    if (std::regex_match (param, std::regex(":\\w+") ))
-    {
-        param = param.substr(1,param.length());
-        std::cout << param<<"\n";
-    }
+int main()
+{
+	////tree node addition and matching test
+	const std::string test = "/users/add";
+	RoutersTree tree;
+	tree.add(GET, test);
+	auto& node = tree.match(test);
 
-//	std::vector<std::string> words;
-//	split(test, words, '/');
-//	std::cout << node.value << std::endl;
+	////regex test
+	std::string param = ":aasdf_sada";
+	if (std::regex_match(param, std::regex(":\\w+")))
+	{
+		param = param.substr(1, param.length());
+		std::cout << param << "\n";
+	}
+
+	////string split test
+	//	std::vector<std::string> words;
+	//	split(test, words, '/');
+	//	std::cout << node.value << std::endl;
+
+	////map stuff
+	/*std::map<std::string, int> m;
+	m.emplace("1",1);
+	auto a = m.at("1");
+	auto b = m.find("1");*/
+
+
+	auto a = 3;
+	auto& b = a;
+	b=5;
+	std::cout<<a;
+
 	return 0;
 }
