@@ -9,18 +9,19 @@
 #include <iostream>
 #include <vector>
 #include <csignal>
+#include <list>
 
 template <class Container>
-void split(const std::string& str, Container& cont, const char delim = ' ')
+void split(const std::string& str, Container& cont, const char delimiter = ' ')
 {
 	std::size_t previous = 0;
-	auto current = str.find(delim);
+	auto current = str.find(delimiter);
 	while (current != std::string::npos) {
-		cont.push_back(str.substr(previous, current - previous));
+		cont.emplace_back(str.substr(previous, current - previous));
 		previous = current + 1;
-		current = str.find(delim, previous);
+		current = str.find(delimiter, previous);
 	}
-	cont.push_back(str.substr(previous, current - previous));
+	cont.emplace_back(str.substr(previous, current - previous));
 }
 struct Node
 {
@@ -41,16 +42,17 @@ class RoutersTree
 {
 public:
 	RoutersTree() = default;
-	void add(Operation operation, std::string path) const
+	void add(Operation operation, const std::string& path) const
 	{
+
 	}
-	Node& match(const std::string& path) {
+	Node& match(const std::string& path) {	
 		auto& current_node = root;
-		std::vector<std::string&> keys{};
+		std::list<std::string> keys;
 		split(path, keys, '/');
-		for (auto& key : keys)
+		for (const auto& key : keys)
 		{
-			if (search(current_node, key))
+			if (current_node.children.find(key) != current_node.children.end())
 			{
 				current_node = current_node.children.at(key);
 			}
@@ -81,5 +83,5 @@ int main() {
 	std::vector<std::string> words;
 	split(test, words, '/');
 	std::cout << words[2] << std::endl;
-	return 0;
+
 }
