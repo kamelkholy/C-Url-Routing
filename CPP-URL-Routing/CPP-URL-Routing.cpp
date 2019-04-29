@@ -8,7 +8,7 @@
 #include <iostream>
 #include <vector>
 #include <regex>
-#include<list>
+#include <list>
 
 template <class Container>
 void split(const std::string& str, Container& cont, const char delimiter = ' ')
@@ -51,18 +51,20 @@ public:
 
 	void add(Operation operation, const std::string& path)
 	{
-		auto* current_node = &root;
+		auto* currentNode = &root;
 		std::vector<std::string> keys{};
 		split(path, keys, '/');
+		std::string value{};
 		for (const auto& key : keys)
 		{
-			if (current_node->children.find(key) != current_node->children.end())
+			value += key + '/';
+			if (currentNode->children.find(key) != currentNode->children.end())
 			{
-				current_node = &current_node->children.at(key);
+				currentNode = &currentNode->children.at(key);
 			}
 			else
 			{
-				auto newNode = new Node{false, key, "", path};
+				auto newNode = new Node{false, key, "", value};
 				allCreatedNodes.emplace_back(newNode);
 				std::cout << key << std::endl;
 				if (std::regex_match(key, std::regex(":\\w+")))
@@ -72,29 +74,29 @@ public:
 					newNode->isParameter = true;
 					newNode->parameter = param;
 				}
-				current_node->children.emplace(key, *newNode);
-				current_node = newNode;
+				currentNode->children.emplace(key, *newNode);
+				currentNode = newNode;
 			}
 		}
 	}
 
 	Node& match(const std::string& path)
 	{
-		auto* current_node = &root;
+		auto* currentNode = &root;
 		std::vector<std::string> keys{};
 		split(path, keys, '/');
 		for (const auto& key : keys)
 		{
-			if (current_node->children.find(key) != current_node->children.end())
+			if (currentNode->children.find(key) != currentNode->children.end())
 			{
-				current_node = &current_node->children.at(key);
+				currentNode = &currentNode->children.at(key);
 			}
 			else
 			{
-				//Page404(path);
+				//return Page404(path);
 			}
 		}
-		return *current_node;
+		return *currentNode;
 	}
 };
 
@@ -125,11 +127,6 @@ int main()
 	auto a = m.at("1");
 	auto b = m.find("1");*/
 
-
-	auto a = 3;
-	auto& b = a;
-	b=5;
-	std::cout<<a;
 
 	return 0;
 }
