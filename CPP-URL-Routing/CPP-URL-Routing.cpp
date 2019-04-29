@@ -43,10 +43,26 @@ public:
 	RoutersTree() = default;
 	void add(Operation operation, std::string path) const
 	{
+        auto current_node = root;
+		std::vector<std::string> keys{};
+		split(path, keys, '/');
+		for (auto& key : keys)
+		{
+			if (search(current_node, key))
+			{
+				current_node = current_node.children.at(key);
+			}
+			else
+			{
+			    auto newNode = Node{false, key, "", path};
+                std::cout << key << std::endl;
+				current_node.children.emplace(key, newNode);
+			}
+		}
 	}
 	Node& match(const std::string& path) {
 		auto& current_node = root;
-		std::vector<std::string&> keys{};
+		std::vector<std::string> keys{};
 		split(path, keys, '/');
 		for (auto& key : keys)
 		{
@@ -77,9 +93,12 @@ private:
 };
 
 int main() {
-	const auto test = "/users/add";
-	std::vector<std::string> words;
-	split(test, words, '/');
-	std::cout << words[2] << std::endl;
+    const std::string test = "/users/add";
+    RoutersTree tree;
+    tree.add(Operation::GET, test);
+    Node& node = tree.match(test);
+//	std::vector<std::string> words;
+//	split(test, words, '/');
+//	std::cout << node.value << std::endl;
 	return 0;
 }
