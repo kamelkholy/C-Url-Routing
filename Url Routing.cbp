@@ -31,7 +31,7 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
-		<Unit filename="Main.cpp" />
+		<Unit filename="CPP-URL-Routing/CPP-URL-Routing.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

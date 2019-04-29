@@ -3,5 +3,10 @@
 ################################################################################
 
 /.vs
+Url Routing.layout
+/obj
+/bin
+Url Routing.depend
+/.vscode
 /x64/Debug
 /CPP-URL-Routing/x64/Debug
