@@ -23,7 +23,14 @@ void split(const std::string& str, Container& cont, const char delimiter = ' ')
 	}
 	cont.emplace_back(str.substr(previous, current - previous));
 }
-
+enum Operation
+{
+	GET,
+	POST,
+	PUT,
+	DELETE
+};
+static const std::string operationToString[] = { "GET", "POST", "PUT", "DELETE" };
 struct Node
 {
 	bool isParameter = false;
@@ -31,14 +38,7 @@ struct Node
 	std::string parameter = "";
 	std::string value = "";
 	std::map<std::string, Node&> children{};
-};
-
-enum Operation
-{
-	GET,
-	POST,
-	PUT,
-	DELETE
+    std::map<Operation, Node&> operations{};
 };
 
 class RoutersTree
@@ -65,19 +65,23 @@ public:
 			else
 			{
 				auto newNode = new Node{false, key, "", value};
+				std::string mapKey = key;
 				allCreatedNodes.emplace_back(newNode);
-				std::cout << key << std::endl;
 				if (std::regex_match(key, std::regex(":\\w+")))
 				{
 					auto param = key.substr(1, key.length());
-					std::cout << param << "\n";
 					newNode->isParameter = true;
 					newNode->parameter = param;
+					mapKey = ":";
 				}
-				currentNode->children.emplace(key, *newNode);
+				currentNode->children.emplace(mapKey, *newNode);
 				currentNode = newNode;
 			}
 		}
+        auto operationNode = new Node{false, operationToString[operation], "", operationToString[operation] + " " +currentNode->value};
+		operationNode->isParameter = currentNode->isParameter;
+		operationNode->parameter = currentNode->parameter;
+		currentNode->operations.emplace(operation, *operationNode);
 	}
 
 	Node& match(const std::string& path)
@@ -91,9 +95,14 @@ public:
 			{
 				currentNode = &currentNode->children.at(key);
 			}
-			else
+			else if (currentNode->children.find(":") != currentNode->children.end())
 			{
-				//return Page404(path);
+			    currentNode = &currentNode->children.at(":");
+			}
+			else
+            {
+                //return Page404(path);
+
 			}
 		}
 		return *currentNode;
@@ -104,9 +113,11 @@ int main()
 {
 	////tree node addition and matching test
 	const std::string test = "/users/add";
+	const std::string test1 = "/users/:id";
 	RoutersTree tree;
-	tree.add(GET, test);
-	auto& node = tree.match(test);
+	tree.add(GET, test1);
+	tree.add(POST, test);
+	auto& node = tree.match("/users/1234");
 
 	////regex test
 	std::string param = ":aasdf_sada";
@@ -119,7 +130,9 @@ int main()
 	////string split test
 	//	std::vector<std::string> words;
 	//	split(test, words, '/');
-	//	std::cout << node.value << std::endl;
+    std::cout << node.operations.at(Operation::GET).value << std::endl;
+    std::cout << node.value << std::endl;
+//    std::cout << node.operations.at(Operation::GET).parameter << std::endl;
 
 	////map stuff
 	/*std::map<std::string, int> m;
